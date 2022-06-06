@@ -1,5 +1,7 @@
+import 'package:domain_driven/core/injector/injector.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:injectable/injectable.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -7,6 +9,7 @@ void main() async {
 	await Firebase.initializeApp(
 		options: DefaultFirebaseOptions.currentPlatform,
 	);
+	configureDependencies(Environment.prod);
   	runApp(const MyApp());
 }
 
