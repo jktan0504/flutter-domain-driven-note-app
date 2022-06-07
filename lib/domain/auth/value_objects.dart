@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:domain_driven/domain/core/failures.dart';
 import 'package:domain_driven/domain/core/value_objects.dart';
 import 'package:domain_driven/domain/core/value_validators.dart';
-
+import 'package:uuid/uuid.dart';
 
 class EmailAddress extends ValueObject<String> {
 	final Either<ValueFailure<String>, String> value;
@@ -32,6 +32,26 @@ class Password extends ValueObject<String> {
 	const Password._(this.value);
 }
 
+
+class UniqueId extends ValueObject<String> {
+	@override
+	final Either<ValueFailure<String>, String> value;
+
+	factory UniqueId() {
+		return UniqueId._(
+			right(Uuid().v1()),
+		);
+	}
+
+	factory UniqueId.fromUniqueString(String uniqueId) {
+		assert(uniqueId != null);
+		return UniqueId._(
+			right(uniqueId),
+		);
+	}
+
+	const UniqueId._(this.value);
+}
 
 
 // inside UI

@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:domain_driven/domain/auth/auth_failures.dart';
 import 'package:domain_driven/domain/auth/value_objects.dart';
+import 'package:domain_driven/domain/auth/user.dart';
 
 abstract class IAuthFacade {
 	
@@ -15,4 +16,8 @@ abstract class IAuthFacade {
 	});
 
 	Future<Either<AuthFailure, Unit>> signInWithGoogle();
+
+	Future<Option<User>> getSignedInUser();
+
+	 Future<void> signOut();
 }
