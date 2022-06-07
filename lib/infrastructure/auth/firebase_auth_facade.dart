@@ -9,8 +9,7 @@ import 'package:flutter/services.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:injectable/injectable.dart';
 
-@lazySingleton  
-@Injectable(as: IAuthFacade)
+@LazySingleton(as: IAuthFacade)
 class FirebaseAuthFacade implements IAuthFacade {
 	final FirebaseAuth _firebaseAuth;
 	final GoogleSignIn _googleSignIn;
@@ -32,14 +31,25 @@ class FirebaseAuthFacade implements IAuthFacade {
 			await _firebaseAuth.createUserWithEmailAndPassword(email: emailStr, password: passwordStr);
 
 			return right(unit);
-		} on PlatformException catch (e) {
+		} on FirebaseException catch (e) {
+			print("platform error");
+			print(e);
 			if (e.code == 'email-already-in-use') {
 				return left(const AuthFailure.emailAlreadyInUse());
 			}
 			else {
 				return left(const AuthFailure.serverError());
 			}
-		}
+		}  on PlatformException catch (e) {
+			print("platform error");
+			print(e);
+			if (e.code == 'email-already-in-use') {
+				return left(const AuthFailure.emailAlreadyInUse());
+			}
+			else {
+				return left(const AuthFailure.serverError());
+			}
+		} 
 	}
 
 	@override
@@ -54,6 +64,13 @@ class FirebaseAuthFacade implements IAuthFacade {
 			await _firebaseAuth.signInWithEmailAndPassword(email: emailStr, password: passwordStr);
 
 			return right(unit);
+		} on FirebaseException catch (e) {
+			if (e.code == 'invalid-email' || e.code == 'wrong-password' || e.code == 'user-not-found') {
+				return left(const AuthFailure.invalidEmailAndPasswordCombination());
+			}
+			else {
+				return left(const AuthFailure.serverError());
+			}
 		} on PlatformException catch (e) {
 			if (e.code == 'invalid-email' || e.code == 'wrong-password' || e.code == 'user-not-found') {
 				return left(const AuthFailure.invalidEmailAndPasswordCombination());

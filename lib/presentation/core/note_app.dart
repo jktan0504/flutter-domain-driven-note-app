@@ -7,8 +7,19 @@ class NoteApp extends StatelessWidget {
 	@override
 	Widget build(BuildContext context) {
 		return MaterialApp(
-			title: 'Note App',
-			home: SignInPage(),
+			title: 'Notes',
+			home: const SignInPage(),
+			theme: ThemeData.light().copyWith(
+				colorScheme: ColorScheme.fromSwatch().copyWith(
+					primary: Colors.green[800],
+					secondary: Colors.red, // Your accent color
+				),
+				inputDecorationTheme: InputDecorationTheme(
+					border: OutlineInputBorder(
+						borderRadius: BorderRadius.circular(8.0)
+					)
+				),
+			),
 		);	
   	}	
 }

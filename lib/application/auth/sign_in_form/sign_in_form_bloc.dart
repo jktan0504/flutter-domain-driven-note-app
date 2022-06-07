@@ -58,20 +58,85 @@ class SignInFormBloc extends Bloc<SignInFormEvent, SignInFormState> {
 		// });
 
 		// ignore: void_checks
-		on<RegisterWithEmailAndPasswordPressed>((event, emit) async* {
-			yield* _performActionOnAuthFacadeWithEmailAndPassword(
-				_authFacade.registerWithEmailAndPassword,
-				emit
-			);		
+		// on<RegisterWithEmailAndPasswordPressed>((event, emit) async* {
+
+		// 	print("event is reached RegisterWithEmailAndPasswordPressed");
+		// 	yield* _performActionOnAuthFacadeWithEmailAndPassword(
+		// 		_authFacade.registerWithEmailAndPassword
+		// 	);		
+		// });
+		// ignore: void_checks good 
+		// on<RegisterWithEmailAndPasswordPressed>((event, emit) async* {
+		// 	print("event is running");
+		// 	yield* _performActionOnAuthFacadeWithEmailAndPassword(
+		// 		_authFacade.registerWithEmailAndPassword
+		// 	);		
+		// });
+		on<RegisterWithEmailAndPasswordPressed>((event, emit) async  {
+
+			Either<AuthFailure, Unit>? failureOrSuccess;
+
+			final isEmailValid = state.emailAddress.isValid();
+			final isPasswordValid = state.password.isValid();
+
+			if (isEmailValid && isPasswordValid) {
+				print("valid");
+				emit(state.copyWith(
+					isSubmitting: true,
+					authFailureOrSuccessOption: none(),
+				));
+
+				failureOrSuccess = await _authFacade.registerWithEmailAndPassword(
+					emailAddress: state.emailAddress,
+					password: state.password,
+				);
+				print(failureOrSuccess);
+			}
+			else {
+				print("invalid");	
+			}
+
+			emit(state.copyWith(
+				isSubmitting: false,
+				showErrorMessages: true,
+				// ignore: unnecessary_null_comparison
+				// failureOrSuccess == null ? none() : some(failureOrSuccess) ==== optionOf(failureOrSuccess)
+				authFailureOrSuccessOption: optionOf(failureOrSuccess),
+			));
 		});
 
 
 		// ignore: void_checks
-		on<SignInWithEmailAndPasswordPressed>((event, emit) async* {
-			yield* _performActionOnAuthFacadeWithEmailAndPassword(
-				_authFacade.signInWithEmailAndPassword,
-				emit
-			);		
+		on<SignInWithEmailAndPasswordPressed>((event, emit) async {
+			Either<AuthFailure, Unit>? failureOrSuccess;
+
+			final isEmailValid = state.emailAddress.isValid();
+			final isPasswordValid = state.password.isValid();
+
+			if (isEmailValid && isPasswordValid) {
+				print("valid");
+				emit(state.copyWith(
+					isSubmitting: true,
+					authFailureOrSuccessOption: none(),
+				));
+
+				failureOrSuccess = await _authFacade.signInWithEmailAndPassword(
+					emailAddress: state.emailAddress,
+					password: state.password,
+				);
+				print(failureOrSuccess);
+			}
+			else {
+				print("invalid");	
+			}
+
+			emit(state.copyWith(
+				isSubmitting: false,
+				showErrorMessages: true,
+				// ignore: unnecessary_null_comparison
+				// failureOrSuccess == null ? none() : some(failureOrSuccess) ==== optionOf(failureOrSuccess)
+				authFailureOrSuccessOption: optionOf(failureOrSuccess),
+			));		
 		});
 		
 		on<SignInWithGooglePressed>((event, emit) async {
@@ -90,32 +155,39 @@ class SignInFormBloc extends Bloc<SignInFormEvent, SignInFormState> {
 	Stream<SignInFormState> _performActionOnAuthFacadeWithEmailAndPassword(
 		Future<Either<AuthFailure, Unit>> Function({
 			required EmailAddress emailAddress,
-			required Password password
+			required Password password,
 		})
-		forwardCall,
-		Emitter<SignInFormState> emit, 
+			forwardedCall,
 	) async* {
 		final Unit someData = none() as Unit;
 		Either<AuthFailure, Unit> failureOrSuccess = right(someData);
+
 		final isEmailValid = state.emailAddress.isValid();
 		final isPasswordValid = state.password.isValid();
 
-		if (isEmailValid && isPasswordValid) { 
-			emit(state.copyWith(
-					isSubmitting: true,
-					authFailureOrSuccessOption: none()
-				));
+		if (isEmailValid && isPasswordValid) {
+			print("valid");
+			yield state.copyWith(
+				isSubmitting: true,
+				authFailureOrSuccessOption: none(),
+			);
 
-				failureOrSuccess = await forwardCall(emailAddress: state.emailAddress, password:  state.password);
-			}
+			failureOrSuccess = await forwardedCall(
+				emailAddress: state.emailAddress,
+				password: state.password,
+			);
+		}
+		else {
+			print("invalid");
+		}
 
-			emit(state.copyWith(
-				isSubmitting: false,
-				showErrorMessages: true,
-				// ignore: unnecessary_null_comparison
-				// failureOrSuccess == null ? none() : some(failureOrSuccess) ==== optionOf(failureOrSuccess)
-				authFailureOrSuccessOption: optionOf(failureOrSuccess), // return none() or failureOfSuccess Unit
-			));
+		yield state.copyWith(
+			isSubmitting: false,
+			showErrorMessages: true,
+			// ignore: unnecessary_null_comparison
+			// failureOrSuccess == null ? none() : some(failureOrSuccess) ==== optionOf(failureOrSuccess)
+			authFailureOrSuccessOption: optionOf(failureOrSuccess),
+		);
 	}
 }
 

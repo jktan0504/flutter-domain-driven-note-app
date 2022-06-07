@@ -3,6 +3,7 @@ import 'package:domain_driven/domain/auth/auth_failures.dart';
 import 'package:domain_driven/domain/auth/value_objects.dart';
 
 abstract class IAuthFacade {
+	
 	Future<Either<AuthFailure, Unit>> registerWithEmailAndPassword({
 		required EmailAddress emailAddress,
 		required Password password
